@@ -58,7 +58,29 @@ class GerenciadorAlocados:
 
 # Funções para salvar e carregar dados em um arquivo Excel
 def salvar_usuarios_computadores_excel(filename, usuarios, computadores):
-    workbook = openpyxl.Workbook()
+    try:
+        workbook = openpyxl.load_workbook(filename)
+    except FileNotFoundError:
+        workbook = openpyxl.Workbook()
+    
+    # Preservar a planilha "Sheet" se ela existir
+    if "Sheet" in workbook.sheetnames:
+        sheet_rascunho = workbook["Sheet"]
+    else:
+        sheet_rascunho = workbook.create_sheet(title="Sheet")
+
+    if "Estoque" in workbook.sheetnames:
+        sheet_rascunho = workbook["Estoque"]
+    else:
+        sheet_rascunho = workbook.create_sheet(title="Estoque")    
+    
+    # Remover as planilhas existentes "Usuários" e "Computadores"
+    if "Usuários" in workbook.sheetnames:
+        del workbook["Usuários"]
+    if "Computadores" in workbook.sheetnames:
+        del workbook["Computadores"]
+    
+    # Criar novas planilhas "Usuários" e "Computadores"
     sheet_usuarios = workbook.create_sheet(title="Usuários")
     sheet_usuarios.append(["Nome", "CPF", "Setor", "Localizacao", "Assinatura", "Celular"])
 
@@ -74,10 +96,27 @@ def salvar_usuarios_computadores_excel(filename, usuarios, computadores):
     workbook.save(filename)
 
 def salvar_computador_alocado_excel(filename, computadores_alocados):
-    workbook = openpyxl.load_workbook(filename)
-    # Se a folha "Alocados" já existir, remove-a antes de adicionar novamente
+    try:
+        workbook = openpyxl.load_workbook(filename)
+    except FileNotFoundError:
+        workbook = openpyxl.Workbook()
+    
+    # Preservar a planilha "Sheet" se ela existir
+    if "Sheet" in workbook.sheetnames:
+        sheet_rascunho = workbook["Sheet"]
+    else:
+        sheet_rascunho = workbook.create_sheet(title="Sheet")
+
+    if "Estoque" in workbook.sheetnames:
+        sheet_rascunho = workbook["Estoque"]
+    else:
+        sheet_rascunho = workbook.create_sheet(title="Estoque")    
+    
+    # Remover a planilha existente "Alocados" se ela existir
     if "Alocados" in workbook.sheetnames:
         del workbook["Alocados"]
+    
+    # Criar nova planilha "Alocados"
     sheet_alocados = workbook.create_sheet(title="Alocados")
 
     sheet_alocados.append(["Número", "Serial", "Nome/Modelo", "Usuário", "Observação", "Assinatura", "Celular"])
@@ -156,7 +195,7 @@ def carregar_registros_excel(filename):
     return registros
 
 # Caminho do arquivo Excel
-excel_file = "C:/Users/user/Desktop/Patrimonio.xlsx"
+excel_file = "G:/Meu Drive/Suporte/Patrimonio.xlsx"
 
 # Carregar dados do Excel ou criar arquivo vazio se não existir
 lista_usuarios, lista_computadores = carregar_usuarios_computadores_excel(excel_file)
